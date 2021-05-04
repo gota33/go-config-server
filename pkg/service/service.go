@@ -57,7 +57,7 @@ func New(opts Options) *Service {
 func (srv Service) Handle(c *fiber.Ctx) (err error) {
 	var (
 		ctx       = c.Context()
-		name      = c.Params("name")
+		name      = c.Params("+")
 		namespace = c.Params("namespace")
 	)
 	doc, err := srv.app.Handle(ctx, namespace, name)
@@ -96,7 +96,7 @@ func (srv Service) Run(ctx context.Context) (err error) {
 }
 
 func (srv Service) registerAppHandler(server *fiber.App) {
-	server.Get("/:namespace/:name", srv.Handle)
+	server.Get("/:namespace/+", srv.Handle)
 }
 
 func registerAccessLogger(server *fiber.App) {

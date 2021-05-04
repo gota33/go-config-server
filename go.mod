@@ -8,4 +8,5 @@ require (
 	github.com/gofiber/fiber/v2 v2.8.0 // indirect
 	github.com/google/go-jsonnet v0.17.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/urfave/cli/v2 v2.3.0 // indirect
 )
