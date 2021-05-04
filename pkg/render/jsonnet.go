@@ -1,6 +1,11 @@
 package render
 
-import . "github.com/google/go-jsonnet"
+import (
+	"path/filepath"
+
+	. "github.com/google/go-jsonnet"
+	"go-config-server/pkg/storage"
+)
 
 type Jsonnet struct {
 	Importer Importer
@@ -11,5 +16,21 @@ func (r Jsonnet) Render(entry string, outputType ContentType) (doc string, err e
 	vm.Importer(r.Importer)
 
 	doc, err = vm.EvaluateFile(entry)
+	return
+}
+
+type StorageImporter struct {
+	Storage storage.Storage
+}
+
+func (s StorageImporter) Import(importedFrom, importedPath string) (contents Contents, foundAt string, err error) {
+	dir, _ := filepath.Split(importedFrom)
+	path := filepath.Join(dir, importedPath)
+	data, err := s.Storage.Read(path)
+
+	if err == nil {
+		contents = MakeContents(data)
+		foundAt = path
+	}
 	return
 }
