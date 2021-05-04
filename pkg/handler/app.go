@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 
-	"go-config-server/pkg/render"
-	"go-config-server/pkg/storage"
+	"github.com/GotaX/go-config-server/pkg/render"
+	"github.com/GotaX/go-config-server/pkg/storage"
 )
 
 type App struct {

@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/GotaX/go-config-server/pkg/handler"
+	"github.com/GotaX/go-config-server/pkg/render"
+	"github.com/GotaX/go-config-server/pkg/storage"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"go-config-server/pkg/handler"
-	"go-config-server/pkg/render"
-	"go-config-server/pkg/storage"
 )
 
 const (

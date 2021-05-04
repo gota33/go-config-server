@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/GotaX/go-config-server/pkg/render"
 	"github.com/stretchr/testify/assert"
-	"go-config-server/pkg/render"
 )
 
 func TestApp(t *testing.T) {

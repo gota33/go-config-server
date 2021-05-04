@@ -1,8 +1,8 @@
 package internal
 
 import (
+	"github.com/GotaX/go-config-server/pkg/service"
 	. "github.com/urfave/cli/v2"
-	"go-config-server/pkg/service"
 )
 
 const (

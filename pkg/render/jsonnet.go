@@ -3,8 +3,8 @@ package render
 import (
 	"path/filepath"
 
+	"github.com/GotaX/go-config-server/pkg/storage"
 	. "github.com/google/go-jsonnet"
-	"go-config-server/pkg/storage"
 )
 
 type Jsonnet struct {

@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/GotaX/go-config-server/cmd/internal"
 	"github.com/urfave/cli/v2"
-	"go-config-server/cmd/internal"
 )
 
 func main() {
