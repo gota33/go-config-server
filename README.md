@@ -17,7 +17,7 @@ go-config-server web -http=:8080 -repo=<git repo> -user=<username> -pass=<passwo
 ```
 ## Usage/Examples
 
-Use google/jsonnet repo as example:
+Use [google/jsonnet](https://github.com/google/jsonnet) repo as example:
 
 Start server:
 
