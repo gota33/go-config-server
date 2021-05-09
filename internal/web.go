@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/GotaX/go-config-server/pkg/service"
+	"github.com/gota33/go-config-server/pkg/service"
 	. "github.com/urfave/cli/v2"
 )
 

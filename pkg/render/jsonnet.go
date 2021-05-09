@@ -1,10 +1,12 @@
 package render
 
 import (
+	"io"
+	"io/ioutil"
 	"path/filepath"
 
-	"github.com/GotaX/go-config-server/pkg/storage"
 	. "github.com/google/go-jsonnet"
+	"github.com/gota33/go-config-server/pkg/storage"
 )
 
 type Jsonnet struct {
@@ -19,18 +21,28 @@ func (r Jsonnet) Render(entry string, outputType ContentType) (doc string, err e
 	return
 }
 
-type StorageImporter struct {
-	Storage storage.Storage
+type RoFsImporter struct {
+	Fs storage.ReadonlyFs
 }
 
-func (s StorageImporter) Import(importedFrom, importedPath string) (contents Contents, foundAt string, err error) {
+func (s RoFsImporter) Import(importedFrom, importedPath string) (contents Contents, foundAt string, err error) {
 	dir, _ := filepath.Split(importedFrom)
 	path := filepath.Join(dir, importedPath)
-	data, err := s.Storage.Read(path)
 
-	if err == nil {
-		contents = MakeContents(data)
-		foundAt = path
+	var (
+		fd   io.ReadCloser
+		data []byte
+	)
+	if fd, err = s.Fs.Open(path); err != nil {
+		return
 	}
+	defer func() { _ = fd.Close() }()
+
+	if data, err = ioutil.ReadAll(fd); err != nil {
+		return
+	}
+
+	contents = MakeContents(string(data))
+	foundAt = path
 	return
 }

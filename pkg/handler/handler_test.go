@@ -4,14 +4,16 @@ import (
 	"context"
 	"testing"
 
-	"github.com/GotaX/go-config-server/pkg/render"
+	"github.com/gota33/go-config-server/pkg/render"
+	"github.com/gota33/go-config-server/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestApp(t *testing.T) {
 	s := &MockStorage{}
-	r := &MockRender{}
-	app := App{Storage: s, Renderer: r}
+	r := &MockRenderer{}
+	app := App{Provider: s}
+	app.NewRenderer = func(fs storage.ReadonlyFs, name string) (render.Renderer, error) { return r, nil }
 
 	_, _ = app.Handle(context.TODO(), "", "")
 	assert.True(t, s.useInvoked)
@@ -22,20 +24,30 @@ type MockStorage struct {
 	useInvoked bool
 }
 
-func (m *MockStorage) Use(ctx context.Context, namespace string) (err error) {
+func (m *MockStorage) Provide(ctx context.Context, namespace string) (fs storage.ReadonlyFs, err error) {
 	m.useInvoked = true
-	return
+	return &MockFs{}, nil
 }
 
-func (m *MockStorage) Read(path string) (content string, err error) {
-	return
+type MockFs struct{}
+
+func (m MockFs) Close() (_ error) { return }
+
+func (m MockFs) Open(name string) (storage.ReadonlyFile, error) {
+	return MockFile{}, nil
 }
 
-type MockRender struct {
+type MockFile struct{}
+
+func (m MockFile) Read(p []byte) (n int, err error) { return }
+
+func (m MockFile) Close() (err error) { return }
+
+type MockRenderer struct {
 	renderInvoked bool
 }
 
-func (m *MockRender) Render(entry string, outputType render.ContentType) (doc string, err error) {
+func (m *MockRenderer) Render(entry string, outputType render.ContentType) (doc string, err error) {
 	m.renderInvoked = true
 	return
 }

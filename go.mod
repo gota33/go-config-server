@@ -1,4 +1,4 @@
-module github.com/GotaX/go-config-server
+module github.com/gota33/go-config-server
 
 go 1.16
 

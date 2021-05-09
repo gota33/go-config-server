@@ -8,7 +8,7 @@ A simple config server written in Go, similarity to spring config server but sup
 Install by running:
 
 ```bash
-go install github.com/GotaX/go-config-server
+go install github.com/gota33/go-config-server
 ```
 
 Start server by running:

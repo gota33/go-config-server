@@ -1,12 +1,22 @@
 package storage
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
-type Storage interface {
+type Provider interface {
+	// Provide is used to provide readonly filesystem by namespace
+	Provide(ctx context.Context, namespace string) (fs ReadonlyFs, err error)
+}
 
-	// Use is used for switching between namespaces
-	Use(ctx context.Context, namespace string) (err error)
+type ReadonlyFs interface {
+	io.Closer
 
-	// Read will return content read from given path
-	Read(path string) (content string, err error)
+	// Open open a readonly file for reading, the associated file descriptor has mode O_RDONLY.
+	Open(name string) (ReadonlyFile, error)
+}
+
+type ReadonlyFile interface {
+	io.ReadCloser
 }

@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/GotaX/go-config-server/pkg/handler"
-	"github.com/GotaX/go-config-server/pkg/render"
-	"github.com/GotaX/go-config-server/pkg/storage"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gota33/go-config-server/pkg/handler"
+	"github.com/gota33/go-config-server/pkg/storage"
 )
 
 const (
@@ -31,26 +30,18 @@ type Service struct {
 }
 
 func New(opts Options) *Service {
-	store := &storage.Git{
-		URL: opts.URL,
-	}
+	store := storage.NewGit(opts.URL)
+
 	if opts.Username != "" {
 		store.Auth = &http.BasicAuth{
 			Username: opts.Username,
 			Password: opts.Password,
 		}
 	}
-	renderer := render.Jsonnet{
-		Importer: render.StorageImporter{
-			Storage: store,
-		},
-	}
+
 	return &Service{
 		httpAddr: opts.HttpAddr,
-		app: handler.App{
-			Storage:  store,
-			Renderer: renderer,
-		},
+		app:      handler.App{Provider: store},
 	}
 }
 
@@ -75,8 +66,8 @@ func (srv Service) Run(ctx context.Context) (err error) {
 		WriteTimeout: writeTimeout,
 	})
 
-	registerAccessLogger(server)
 	registerHealthHandler(server)
+	registerAccessLogger(server)
 	srv.registerAppHandler(server)
 
 	chErr := make(chan error, 1)
@@ -100,13 +91,11 @@ func (srv Service) registerAppHandler(server *fiber.App) {
 }
 
 func registerAccessLogger(server *fiber.App) {
-	server.Use(logger.New(logger.Config{
-		Next: func(c *fiber.Ctx) bool { return c.Path() == endpointHealth },
-	}))
+	server.Use(logger.New(logger.Config{}))
 }
 
 func registerHealthHandler(server *fiber.App) {
-	server.All(endpointHealth, func(ctx *fiber.Ctx) error {
+	server.Use(endpointHealth, func(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(fiber.StatusOK)
 	})
 }

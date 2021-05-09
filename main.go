@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/GotaX/go-config-server/internal"
+	"github.com/gota33/go-config-server/internal"
 	"github.com/urfave/cli/v2"
 )
 
