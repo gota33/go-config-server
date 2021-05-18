@@ -93,8 +93,7 @@ func (g *Git) fetch(ctx context.Context) (err error) {
 		RefSpecs: g.remote.Config().Fetch,
 		Auth:     g.Auth,
 		Force:    true,
-		Depth:    1,
-		Progress: os.Stdout,
+		Progress: os.Stderr,
 	}); errors.Is(err, NoErrAlreadyUpToDate) ||
 		errors.Is(err, transport.ErrEmptyUploadPackRequest) {
 		err = nil
