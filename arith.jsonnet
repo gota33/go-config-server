@@ -44,5 +44,5 @@ limitations under the License.
     ex1=%(ex1)0.2f
     ex2=%(ex2)0.2f
   ||| % self,
-  zextra: 'extra1',
+  zextra: 'extra2',
 }
