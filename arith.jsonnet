@@ -39,7 +39,7 @@ limitations under the License.
   // be extracted internally.
   str4: 'ex1=%(ex1)0.2f, ex2=%(ex2)0.2f'
         % self,
-  // Do textual templating of entire files:
+  // Do textual templating of entire files::
   str5: |||
     ex1=%(ex1)0.2f
     ex2=%(ex2)0.2f
