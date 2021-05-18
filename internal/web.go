@@ -18,21 +18,25 @@ var CmdWeb = &Command{
 	Action: runWeb,
 	Flags: []Flag{
 		&StringFlag{
-			Name:  flagHttp,
-			Value: ":8080",
+			Name:    flagHttp,
+			Value:   ":80",
+			EnvVars: []string{"HTTP"},
 		},
 		&StringFlag{
 			Name:     flagRepository,
 			Required: true,
 			Aliases:  []string{"repo"},
+			EnvVars:  []string{"REPO"},
 		},
 		&StringFlag{
 			Name:    flagUsername,
 			Aliases: []string{"user"},
+			EnvVars: []string{"USER"},
 		},
 		&StringFlag{
 			Name:    flagPassword,
 			Aliases: []string{"pass"},
+			EnvVars: []string{"PASS"},
 		},
 	},
 }

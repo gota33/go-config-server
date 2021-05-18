@@ -14,6 +14,7 @@ func main() {
 
 	app := cli.App{
 		Name:     "config-server",
+		Version:  internal.Version,
 		Commands: []*cli.Command{internal.CmdWeb},
 	}
 

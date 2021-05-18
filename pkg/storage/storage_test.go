@@ -3,8 +3,6 @@ package storage
 import (
 	"context"
 	"io/ioutil"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/go-git/go-billy/v5"
@@ -17,10 +15,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const repo = `https://github.com/gota33/go-config-server.git`
+
 func TestGit(t *testing.T) {
 	ctx := context.TODO()
 
-	g := NewGit(localRepo())
+	g := NewGit(repo)
 
 	fs, err := g.Provide(ctx, "master")
 	if !assert.NoError(t, err) {
@@ -32,19 +32,12 @@ func TestGit(t *testing.T) {
 	}
 }
 
-func localRepo() string {
-	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filename, "../../..")
-}
-
 func TestB(t *testing.T) {
 	store := memory.NewStorage()
 	auth := &http.BasicAuth{}
 
-	repo0, err := git.Clone(store, nil, &git.CloneOptions{
-		URL:  `https://github.com/gota33/go-config-server.git`,
-		Auth: auth,
-	})
+	repo0, err := git.Clone(store, nil,
+		&git.CloneOptions{URL: repo, Auth: auth})
 	assert.NoError(t, err)
 
 	err = repo0.Fetch(&git.FetchOptions{
