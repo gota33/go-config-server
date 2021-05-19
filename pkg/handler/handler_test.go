@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/gota33/go-config-server/pkg/render"
@@ -13,9 +14,9 @@ func TestApp(t *testing.T) {
 	s := &MockStorage{}
 	r := &MockRenderer{}
 	app := App{Provider: s}
-	app.NewRenderer = func(fs storage.ReadonlyFs, name string) (render.Renderer, error) { return r, nil }
+	app.NewRenderer = func(fs storage.ReadonlyFs, name string, data json.RawMessage) (render.Renderer, error) { return r, nil }
 
-	_, _ = app.Handle(context.TODO(), "", "")
+	_, _ = app.Handle(context.TODO(), Request{})
 	assert.True(t, s.useInvoked)
 	assert.True(t, r.renderInvoked)
 }

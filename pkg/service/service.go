@@ -46,12 +46,19 @@ func New(opts Options) *Service {
 }
 
 func (srv Service) Handle(c *fiber.Ctx) (err error) {
-	var (
-		ctx       = c.Context()
-		name      = c.Params("+")
-		namespace = c.Params("namespace")
-	)
-	doc, err := srv.app.Handle(ctx, namespace, name)
+	ctx := c.Context()
+	req := handler.Request{
+		Name:      c.Params("+"),
+		Namespace: c.Params("namespace"),
+	}
+
+	if c.Is(".json") {
+		if err = c.BodyParser(&req.Data); err != nil {
+			return
+		}
+	}
+
+	doc, err := srv.app.Handle(ctx, req)
 	if err != nil {
 		return
 	}

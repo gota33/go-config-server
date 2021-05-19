@@ -1,6 +1,8 @@
 package render
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"path/filepath"
@@ -11,13 +13,19 @@ import (
 
 type Jsonnet struct {
 	Importer Importer
+	Data     json.RawMessage
 }
 
 func (r Jsonnet) Render(entry string, outputType ContentType) (doc string, err error) {
 	vm := MakeVM()
 	vm.Importer(r.Importer)
 
-	doc, err = vm.EvaluateFile(entry)
+	if len(r.Data) == 0 {
+		doc, err = vm.EvaluateFile(entry)
+	} else {
+		snippet := fmt.Sprintf(`local q = import '%s'; q %s`, entry, r.Data)
+		doc, err = vm.EvaluateAnonymousSnippet("snippet.jsonnet", snippet)
+	}
 	return
 }
 
