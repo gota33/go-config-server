@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -63,8 +64,7 @@ func (srv Service) Handle(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	c.Set("Content-Type", "application/json")
-	return c.SendString(doc)
+	return c.JSON(json.RawMessage(doc))
 }
 
 func (srv Service) Run(ctx context.Context) (err error) {
