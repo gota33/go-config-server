@@ -71,14 +71,13 @@ func (g *Git) Provide(ctx context.Context, namespace string) (fs ReadonlyFs, err
 		}
 	}
 
-	branch := g.branchRef(namespace)
-	if _, ok := g.infos[branch]; !ok {
-		err = fmt.Errorf("namespace not found: %q", namespace)
+	var branch plumbing.ReferenceName
+	if branch, err = g.findBranch(namespace); err != nil {
 		return
 	}
 
 	if !g.skipCheckout(branch) {
-		if fs, err = g.checkout(branch); err != nil {
+		if err = g.checkout(branch); err != nil {
 			return
 		}
 	}
@@ -109,7 +108,6 @@ func (g *Git) fetch(ctx context.Context) (err error) {
 		return
 	}
 
-	g.syncTime = time.Now()
 	log.Println("Fetch: OK")
 	return
 }
@@ -137,10 +135,11 @@ func (g *Git) updateRefs() (err error) {
 		}
 	}
 	g.infos = next
+	g.syncTime = time.Now()
 	return
 }
 
-func (g *Git) checkout(branch plumbing.ReferenceName) (fs internalFs, err error) {
+func (g *Git) checkout(branch plumbing.ReferenceName) (err error) {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
@@ -148,6 +147,7 @@ func (g *Git) checkout(branch plumbing.ReferenceName) (fs internalFs, err error)
 		repo *Repository
 		wt   *Worktree
 		head *plumbing.Reference
+		fs   internalFs
 	)
 	fs.Filesystem = memfs.New()
 
@@ -177,6 +177,14 @@ func (g *Git) checkout(branch plumbing.ReferenceName) (fs internalFs, err error)
 	}
 
 	log.Println("Checkout: OK")
+	return
+}
+
+func (g *Git) findBranch(namespace string) (ref plumbing.ReferenceName, err error) {
+	ref = g.branchRef(namespace)
+	if _, ok := g.infos[ref]; !ok {
+		err = fmt.Errorf("namespace not found: %q", namespace)
+	}
 	return
 }
 
