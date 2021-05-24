@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"strings"
 	"time"
 
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	gHttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gota33/go-config-server/pkg/handler"
@@ -34,7 +36,7 @@ func New(opts Options) *Service {
 	store := storage.NewGit(opts.URL)
 
 	if opts.Username != "" {
-		store.Auth = &http.BasicAuth{
+		store.Auth = &gHttp.BasicAuth{
 			Username: opts.Username,
 			Password: opts.Password,
 		}
@@ -71,6 +73,13 @@ func (srv Service) Run(ctx context.Context) (err error) {
 	server := fiber.New(fiber.Config{
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			if msg := err.Error(); strings.Contains(msg, "RUNTIME ERROR: file does not exist") {
+				return ctx.Status(http.StatusNotFound).SendString(msg)
+			} else {
+				return fiber.DefaultErrorHandler(ctx, err)
+			}
+		},
 	})
 
 	registerHealthHandler(server)
