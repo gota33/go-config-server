@@ -69,6 +69,23 @@ func (srv Service) Handle(c *fiber.Ctx) (err error) {
 	return c.JSON(json.RawMessage(doc))
 }
 
+func (srv Service) HandleDapr(c *fiber.Ctx) (err error) {
+	var req handler.Request
+	if !c.Is(".json") {
+		return c.SendStatus(http.StatusUnsupportedMediaType)
+	}
+	if err = c.BodyParser(&req); err != nil {
+		return
+	}
+
+	doc, err := srv.app.Handle(c.Context(), req)
+	if err != nil {
+		return
+	}
+
+	return c.JSON(json.RawMessage(doc))
+}
+
 func (srv Service) Run(ctx context.Context) (err error) {
 	server := fiber.New(fiber.Config{
 		ReadTimeout:  readTimeout,
@@ -103,6 +120,7 @@ func (srv Service) Run(ctx context.Context) (err error) {
 }
 
 func (srv Service) registerAppHandler(server *fiber.App) {
+	server.Get("/_", srv.HandleDapr)
 	server.Get("/:namespace/+", srv.Handle)
 }
 

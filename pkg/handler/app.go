@@ -16,9 +16,9 @@ type App struct {
 }
 
 type Request struct {
-	Namespace string
-	Name      string
-	Data      json.RawMessage
+	Namespace string          `json:"namespace"`
+	Name      string          `json:"name"`
+	Data      json.RawMessage `json:"data"`
 }
 
 func (a *App) Handle(ctx context.Context, req Request) (doc string, err error) {
@@ -48,7 +48,7 @@ func newRenderer(fs storage.ReadonlyFs, name string, data json.RawMessage) (r re
 			Data:     data,
 		}
 	} else {
-		err = fmt.Errorf("unsupported content type: %q", name)
+		err = fmt.Errorf("unsupported file extension: %q", name)
 	}
 	return
 }
