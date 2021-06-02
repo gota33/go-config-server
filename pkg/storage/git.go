@@ -21,7 +21,8 @@ import (
 )
 
 const (
-	DefaultFetchTTL = 10 * time.Second
+	DefaultFetchTTL     = 10 * time.Second
+	DefaultFetchTimeout = 2 * time.Second
 )
 
 type info struct {
@@ -35,15 +36,17 @@ func (i info) SameHash() bool {
 }
 
 type Git struct {
-	URL      string
-	Auth     transport.AuthMethod
-	FetchTTL time.Duration
+	URL          string
+	Auth         transport.AuthMethod
+	FetchTTL     time.Duration
+	FetchTimeout time.Duration
 
 	store    storage.Storer
 	remote   *Remote
 	lock     sync.Locker
 	syncTime time.Time
 	infos    map[plumbing.ReferenceName]info
+	init     bool
 }
 
 func NewGit(URL string) *Git {
@@ -55,12 +58,13 @@ func NewGit(URL string) *Git {
 	})
 
 	return &Git{
-		URL:      URL,
-		FetchTTL: DefaultFetchTTL,
-		lock:     &sync.Mutex{},
-		store:    store,
-		remote:   remote,
-		infos:    make(map[plumbing.ReferenceName]info),
+		URL:          URL,
+		FetchTTL:     DefaultFetchTTL,
+		FetchTimeout: DefaultFetchTimeout,
+		lock:         &sync.Mutex{},
+		store:        store,
+		remote:       remote,
+		infos:        make(map[plumbing.ReferenceName]info),
 	}
 }
 
@@ -88,6 +92,24 @@ func (g *Git) fetch(ctx context.Context) (err error) {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
+	onError := func(err error) error {
+		if g.init {
+			log.Printf("Use old data, fetch error: %s", err)
+			return nil
+		}
+
+		log.Printf("Init error: %s", err)
+		return err
+	}
+
+	timeout := g.FetchTimeout
+	if !g.init {
+		timeout *= 10
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
 	if err = g.remote.FetchContext(ctx, &FetchOptions{
 		RefSpecs: g.remote.Config().Fetch,
 		Auth:     g.Auth,
@@ -97,17 +119,18 @@ func (g *Git) fetch(ctx context.Context) (err error) {
 		errors.Is(err, transport.ErrEmptyUploadPackRequest) {
 		err = nil
 	} else if err != nil {
-		return
+		return onError(err)
 	}
 
 	ref := plumbing.NewSymbolicReference(plumbing.HEAD, plumbing.Master)
 	if err = g.store.SetReference(ref); err != nil {
-		return
+		return onError(err)
 	}
 	if err = g.updateRefs(); err != nil {
-		return
+		return onError(err)
 	}
 
+	g.init = true
 	log.Println("Fetch: OK")
 	return
 }
