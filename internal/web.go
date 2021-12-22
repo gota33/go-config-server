@@ -10,6 +10,7 @@ const (
 	flagRepository = "repository"
 	flagUsername   = "username"
 	flagPassword   = "password"
+	envPrefix      = "GO_CONFIG_SERVER_"
 )
 
 var CmdWeb = &Command{
@@ -20,23 +21,23 @@ var CmdWeb = &Command{
 		&StringFlag{
 			Name:    flagHttp,
 			Value:   ":80",
-			EnvVars: []string{"HTTP"},
+			EnvVars: []string{envPrefix + "HTTP"},
 		},
 		&StringFlag{
 			Name:     flagRepository,
 			Required: true,
 			Aliases:  []string{"repo"},
-			EnvVars:  []string{"REPO"},
+			EnvVars:  []string{envPrefix + "REPO"},
 		},
 		&StringFlag{
 			Name:    flagUsername,
 			Aliases: []string{"user"},
-			EnvVars: []string{"USER"},
+			EnvVars: []string{envPrefix + "USER"},
 		},
 		&StringFlag{
 			Name:    flagPassword,
 			Aliases: []string{"pass"},
-			EnvVars: []string{"PASS"},
+			EnvVars: []string{envPrefix + "PASS"},
 		},
 	},
 }
