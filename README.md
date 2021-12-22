@@ -22,7 +22,7 @@ Use [google/jsonnet](https://github.com/google/jsonnet) repo as example:
 Start server:
 
 ```bash
-go-config-server web -repo=https://github.com/google/jsonnet.git
+go-config-server web -http=:8080 -repo=https://github.com/google/jsonnet.git
 ```
 
 Query config:
